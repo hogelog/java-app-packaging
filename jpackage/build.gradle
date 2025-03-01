@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'org.beryx.jlink' version '3.0.1'
 }
 
 group 'com.example'
@@ -15,8 +16,49 @@ repositories {
 
 application {
     mainClass = 'com.example.SimpleNotepad'
+    mainModule = 'com.example.simplenotepad'
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+}
+
+jlink {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher {
+        name = 'SimpleNotepad'
+    }
+    jpackage {
+        imageName = 'SimpleNotepad'
+        installerName = 'SimpleNotepad'
+        appVersion = '1.0.0'
+        vendor = 'Example Inc.'
+
+        imageOptions = []
+        installerOptions = []
+
+        if (org.gradle.internal.os.OperatingSystem.current().windows) {
+            installerType = 'msi'
+            imageOptions += ['--win-console']
+            installerOptions += [
+                '--win-dir-chooser',
+                '--win-menu',
+                '--win-shortcut',
+                '--win-menu-group', 'SimpleNotepad'
+            ]
+        }
+        if (org.gradle.internal.os.OperatingSystem.current().macOsX) {
+            installerType = 'dmg'
+            installerOptions += [
+                '--mac-package-name', 'SimpleNotepad'
+            ]
+        }
+        if (org.gradle.internal.os.OperatingSystem.current().linux) {
+            installerType = 'deb'
+            installerOptions += [
+                '--linux-package-name', 'simplenotepad',
+                '--linux-deb-maintainer', 'example@example.com'
+            ]
+        }
+    }
 } 
