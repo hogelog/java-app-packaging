@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'org.graalvm.buildtools.native' version '0.9.28'
 }
 
 group = 'com.example'
@@ -16,8 +17,12 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_23
+    targetCompatibility = JavaVersion.VERSION_23
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(23)
+        vendor = JvmVendorSpec.matching("Oracle")
+    }
 }
 
 application {
@@ -26,4 +31,22 @@ application {
 
 test {
     useJUnitPlatform()
+}
+
+graalvmNative {
+    binaries {
+        main {
+            imageName = 'jls'
+            mainClass = 'com.example.LsCommand'
+            debug = false
+            verbose = true
+            buildArgs.addAll(
+                '--no-fallback'
+            )
+            javaLauncher = javaToolchains.launcherFor {
+                languageVersion = JavaLanguageVersion.of(23)
+                vendor = JvmVendorSpec.matching("Oracle")
+            }
+        }
+    }
 } 
