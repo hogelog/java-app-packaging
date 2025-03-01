@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group 'com.example'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = '17'
+targetCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = 'com.example.SimpleNotepad'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+} 
