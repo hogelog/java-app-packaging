@@ -1,9 +1,13 @@
 package com.example;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
+import java.awt.Font;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class SimpleNotepad extends JFrame {
     private JTextArea textArea;
@@ -15,13 +19,11 @@ public class SimpleNotepad extends JFrame {
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        // テキストエリアの作成
         textArea = new JTextArea();
         textArea.setFont(new Font("MS Gothic", Font.PLAIN, 14));
         JScrollPane scrollPane = new JScrollPane(textArea);
         add(scrollPane);
         
-        // メニューバーの作成
         menuBar = new JMenuBar();
         fileMenu = new JMenu("ファイル");
         
@@ -39,7 +41,6 @@ public class SimpleNotepad extends JFrame {
         menuBar.add(fileMenu);
         setJMenuBar(menuBar);
         
-        // イベントリスナーの設定
         newItem.addActionListener(e -> newFile());
         openItem.addActionListener(e -> openFile());
         saveItem.addActionListener(e -> saveFile());
