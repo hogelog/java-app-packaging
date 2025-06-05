@@ -1,0 +1,79 @@
+name: Release Native Image CLI
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            artifact-name: jls-linux
+            executable-suffix: ""
+          - os: macos-latest
+            artifact-name: jls-macos
+            executable-suffix: ""
+          - os: windows-latest
+            artifact-name: jls-windows
+            executable-suffix: ".exe"
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '24'
+          distribution: 'graalvm'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: gradle/gradle-build-action@v2
+
+      - name: Build native image
+        working-directory: native-image
+        run: ./gradlew nativeCompile
+
+      - name: Prepare artifacts (Unix)
+        if: runner.os != 'Windows'
+        working-directory: native-image
+        run: |
+          mkdir -p artifacts
+          cp build/native/nativeCompile/jls artifacts/${{ matrix.artifact-name }}${{ matrix.executable-suffix }}
+
+      - name: Prepare artifacts (Windows)
+        if: runner.os == 'Windows'
+        working-directory: native-image
+        shell: cmd
+        run: |
+          mkdir artifacts
+          copy build\native\nativeCompile\jls.exe artifacts\${{ matrix.artifact-name }}${{ matrix.executable-suffix }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: native-image/artifacts/${{ matrix.artifact-name }}${{ matrix.executable-suffix }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - uses: actions/download-artifact@v4
+
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            jls-linux/jls-linux
+            jls-macos/jls-macos
+            jls-windows/jls-windows.exe
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
