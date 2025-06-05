@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - 'main'
   workflow_dispatch:
 
 permissions:
@@ -28,20 +30,19 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - uses: graalvm/setup-graalvm@v1
+      - uses: graalvm/setup-graalvm@01ed653ac833fe80569f1ef9f25585ba2811baab # v1.3.3
         with:
           java-version: '24'
           distribution: 'graalvm'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: gradle/gradle-build-action@v2
+      - uses: gradle/actions/setup-gradle@8379f6a1328ee0e06e2bb424dadb7b159856a326 # v4.4.0
 
-      - name: Build native image
+      - run: ./gradlew nativeCompile
         working-directory: native-image
-        run: ./gradlew nativeCompile
 
       - name: Prepare artifacts (Unix)
         if: runner.os != 'Windows'
@@ -58,7 +59,7 @@ jobs:
           mkdir artifacts
           copy build\native\nativeCompile\jls.exe artifacts\${{ matrix.artifact-name }}${{ matrix.executable-suffix }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ matrix.artifact-name }}
           path: native-image/artifacts/${{ matrix.artifact-name }}${{ matrix.executable-suffix }}
@@ -69,9 +70,9 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2.2.2
         with:
           files: |
             jls-linux/jls-linux
