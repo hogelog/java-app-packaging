@@ -6,6 +6,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     strategy:
@@ -81,11 +84,9 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
 
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         with:
           files: |
             SimpleNotepad-macos/SimpleNotepad-macos.dmg
             SimpleNotepad-windows/SimpleNotepad-windows.msi
           generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
