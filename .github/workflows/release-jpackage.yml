@@ -37,16 +37,8 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@8379f6a1328ee0e06e2bb424dadb7b159856a326 # v4.4.0
 
-      - run: ./gradlew jpackageImage
-        working-directory: jpackage
-
       - run: ./gradlew jpackage
         working-directory: jpackage
-        if: runner.os == 'macOS'
-
-      - run: ./gradlew jpackage
-        working-directory: jpackage
-        if: runner.os == 'Windows'
 
       - name: Find installer file (macOS)
         if: runner.os == 'macOS'
